@@ -1,41 +1,42 @@
-const preload = (content, resourcePath, skyAppConfig) => {
-  let authEnabled = (skyAppConfig.skyux.auth === 'true' || skyAppConfig.skyux.auth === true);
-  if (resourcePath.match(/app-extras\.module\.ts$/) && authEnabled) {
+const preload = (content, resourcePath) => {
+  if (resourcePath.match(/app-extras\.module\.ts$/)) {
     return `${content}
 /* tslint:disable:max-line-length */
-import { BBAuth } from '@blackbaud/auth-client';
+
 import { SkyAppBootstrapper, SkyAppWindowRef } from '@blackbaud/skyux-builder/runtime';
-const decode = require('jwt-decode');
+import { AddinClient } from '@blackbaud/sky-api-addin';
+
+function addQSParam(url: string, name: string, value: string): string {
+  const urlAndFragment = url.split('#');
+
+  urlAndFragment[0] += urlAndFragment[0].indexOf('?') >= 0 ? '&' : '?';
+  urlAndFragment[0] += name + '=' + encodeURIComponent(value);
+
+  return urlAndFragment.join('#');
+}
 
 /* istanbul ignore next */
 (SkyAppBootstrapper as any).processBootstrapConfig = () => {
-  if (BBAuth.mock) {
-    return Promise.resolve('Using mock');
-  }
-  return BBAuth
-    .getToken()
-    .then((token: string) => {
-      let permissions = decode(token)['1bb.perms'];
 
-      if (permissions) {
-        if (typeof permissions === 'number') {
-          permissions = [permissions];
-        }
+  const bootstrapPromise = new Promise((resolve, reject) => {
+    const client = new AddinClient({
+      callbacks: {
+        init: (args) => {
+          const url = SkyAppBootstrapper.getUrl();
 
-        if (permissions.indexOf(1) > -1) {
-          return Promise.resolve(true);
+          history.replaceState(
+            {},
+            '',
+            addQSParam(url, 'envid', args.envId)
+          );
+          window.__bbAddinClient = client;
+          resolve();
         }
       }
-
-      const windowRef = new SkyAppWindowRef();
-      const nativeWindow = (windowRef.nativeWindow as any);
-      const redirectUrl = nativeWindow.encodeURIComponent(nativeWindow.location.href);
-
-      document.write('<h1>Unauthorized</h1><p>You must be a Blackbaud employee to access this content. Please <a href="https://signin.blackbaud.com/signout?RedirectUrl=' + redirectUrl + '">sign in</a> with a valid Blackbaud email address.</p>');
-
-      return Promise.reject('Unauthorized');
     });
-};
+  });
+  return bootstrapPromise;
+
 /* tslint:enable:max-line-length */
 `;
   }
