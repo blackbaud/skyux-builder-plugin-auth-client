@@ -3,7 +3,7 @@ const preload = (content, resourcePath) => {
     return `${content}
 /* tslint:disable:max-line-length */
 
-import { SkyAppBootstrapper, SkyAppWindowRef } from '@blackbaud/skyux-builder/runtime';
+import { SkyAppBootstrapper } from '@blackbaud/skyux-builder/runtime';
 import { AddinClient } from '@blackbaud/sky-api-addin';
 
 function addQSParam(url: string, name: string, value: string): string {
@@ -19,21 +19,26 @@ function addQSParam(url: string, name: string, value: string): string {
 (SkyAppBootstrapper as any).processBootstrapConfig = () => {
 
   const bootstrapPromise = new Promise((resolve, reject) => {
-    const client = new AddinClient({
-      callbacks: {
-        init: (args) => {
-          const url = SkyAppBootstrapper.getUrl();
+    try {
+      const client = new AddinClient({
+        callbacks: {
+          init: (args) => {
+            const url = SkyAppBootstrapper.getUrl();
 
-          history.replaceState(
-            {},
-            '',
-            addQSParam(url, 'envid', args.envId)
-          );
-          window.__bbAddinClient = client;
-          resolve();
+            history.replaceState(
+              {},
+              '',
+              addQSParam(url, 'envid', args.envId)
+            );
+            client.destroy();
+            resolve();
+          }
         }
-      }
-    });
+      });
+    } catch (e) {
+      client.destroy();
+      reject(e);
+    }
   });
   return bootstrapPromise;
 
