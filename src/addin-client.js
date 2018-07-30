@@ -4,7 +4,7 @@ const preload = (content, resourcePath) => {
 /* tslint:disable:max-line-length */
 
 import { SkyAppBootstrapper } from '@blackbaud/skyux-builder/runtime';
-import { AddinClient } from '@blackbaud/sky-api-addin';
+import { AddinClient } from '@blackbaud/sky-addin-client';
 
 function addQSParam(url: string, name: string, value: string): string {
   const urlAndFragment = url.split('#');
