@@ -19,11 +19,12 @@ function addQSParam(url: string, name: string, value: string): string {
 (SkyAppBootstrapper as any).processBootstrapConfig = () => {
 
   const bootstrapPromise = new Promise((resolve, reject) => {
+    let client: AddinClient;
     try {
-      const client = new AddinClient({
+      client = new AddinClient({
         callbacks: {
           init: (args) => {
-            const url = SkyAppBootstrapper.getUrl();
+            const url = window.location.href;
 
             history.replaceState(
               {},
@@ -41,6 +42,7 @@ function addQSParam(url: string, name: string, value: string): string {
     }
   });
   return bootstrapPromise;
+};
 
 /* tslint:enable:max-line-length */
 `;

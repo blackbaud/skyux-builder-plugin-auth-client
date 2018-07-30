@@ -1,3 +1,8 @@
+# 1.0.2 (2018-7-30)
+- Fixed bug with url in plugin.
+- Fixed typo in plugin template.
+- Fixed bug with error handler.
+
 # 1.0.1 (2018-7-30)
 
 - Fixed bug with package builder.
