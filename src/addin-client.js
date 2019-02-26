@@ -3,7 +3,7 @@ const preload = (content, resourcePath) => {
     return `${content}
 /* tslint:disable:max-line-length */
 
-import { SkyAppBootstrapper } from '@blackbaud/skyux-builder/runtime';
+import { SkyAppBootstrapper } from '@skyux-sdk/builder/runtime';
 import { AddinClient } from '@blackbaud/sky-addin-client';
 
 function addQSParam(url: string, name: string, value: string): string {
